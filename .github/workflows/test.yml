@@ -1,0 +1,37 @@
+name: Test CLI
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Run tax.py and verify the computed self-employment tax against known-correct values
+        run: |
+          OUT=$(python tax.py --net-profit 100000 --wage-base 184500 --json)
+          echo "$OUT"
+          echo "$OUT" | python -c "
+          import json, sys
+          r = json.load(sys.stdin)
+          assert r['net_earnings_for_se_tax'] == 92350.0, r
+          assert r['social_security_tax'] == 11451.4, r
+          assert r['medicare_tax'] == 2678.15, r
+          assert r['total_se_tax'] == 14129.55, r
+          assert r['deductible_half'] == 7064.77, r
+          print('PASS: basic case matches expected formula output')
+          "
+          OUT2=$(python tax.py --net-profit 250000 --wage-base 184500 --additional-medicare-threshold 200000 --json)
+          echo "$OUT2"
+          echo "$OUT2" | python -c "
+          import json, sys
+          r = json.load(sys.stdin)
+          assert r['social_security_tax'] == 22878.0, r
+          assert r['additional_medicare_tax'] == 277.88, r
+          assert r['total_se_tax'] == 29851.25, r
+          print('PASS: additional Medicare threshold case matches expected formula output')
+          "
