@@ -1,5 +1,7 @@
 # freelance-tax-cli
 
+![Test CLI](https://github.com/kleogeos/freelance-tax-cli/actions/workflows/test.yml/badge.svg)
+
 Estimate US self-employment tax (15.3%) on freelance net profit — Social Security + Medicare, the deductible half, and a quarterly payment breakdown. No dependencies, no sign-up, nothing leaves your machine — just Python 3.
 
 ```bash
